@@ -259,7 +259,19 @@ class Tahoe2ServerSelector(log.PrefixingLogMixin):
                                              share_size, 0, num_segments,
                                              num_share_hashes, EXTENSION_SIZE)
         allocated_size = wbp.get_allocated_size()
-        all_servers = storage_broker.get_servers_for_psi(storage_index)
+
+        ### BCBG: request authorization
+        import urllib
+        import hashlib
+        index = hashlib.sha1(storage_index).hexdigest()
+        params = urllib.urlencode({ "id": index, "size": str(allocated_size) })
+        u = urllib.urlopen("https://backup.yunohost.org:9876/authorize", params)
+        all_servers = False
+        if u.getcode() == 301:
+            all_servers = storage_broker.get_servers_for_psi(storage_index)
+        ###
+
+        # all_servers = storage_broker.get_servers_for_psi(storage_index)
         if not all_servers:
             raise NoServersError("client gave us zero servers")
 

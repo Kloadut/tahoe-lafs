@@ -247,6 +247,17 @@ class StorageServer(service.MultiService, Referenceable):
         self.count("allocate")
         alreadygot = set()
         bucketwriters = {} # k: shnum, v: BucketWriter
+
+        ### BCBG: check authorization for immutable shares
+        import urllib
+        import hashlib
+        params = urllib.urlencode({ "id": hashlib.sha1(storage_index).hexdigest() })
+        u = urllib.urlopen("https://backup.yunohost.org:9876/authorization?%s" % params)
+        if u.getcode() != 200 or int(u.read()) != allocated_size:
+            self.add_latency("allocate", time.time() - start)
+            return set(), {}
+        ###
+
         si_dir = storage_index_to_dir(storage_index)
         si_s = si_b2a(storage_index)
 
@@ -405,6 +416,9 @@ class StorageServer(service.MultiService, Referenceable):
                                                secrets,
                                                test_and_write_vectors,
                                                read_vector):
+        ### BCBG: Forbid mutable shares
+        return (False, {})
+        ###
         start = time.time()
         self.count("writev")
         si_s = si_b2a(storage_index)
