@@ -219,8 +219,20 @@ class IntroducerService(service.MultiService, Referenceable):
         self._debug_counts["inbound_message"] += 1
         self.log("introducer: announcement published: %s" % (ann_t,),
                  umid="wKHgCw")
+
         ann, key = unsign_from_foolscap(ann_t) # might raise BadSignatureError
         index = make_index(ann, key)
+
+        ### BCBG: Publish (able to be seen) only valid nodes
+        tubid = getSturdyRef((ann_t,)).tubID # To test
+        if tubid not in []:
+            self.log("Not published node: %s", tubid)
+            old = self._announcements.get(index)
+            if old:
+                del self._announcements[index]
+                self._debug_counts["inbound_update"] -= 1
+            return
+        ###
 
         service_name = str(ann["service-name"])
         if service_name == "stub_client": # for_v1
@@ -346,6 +358,13 @@ class IntroducerService(service.MultiService, Referenceable):
             tubid = subscriber.getRemoteTubID()
             if tubid in self._stub_client_announcements:
                 subscriber_info = self._stub_client_announcements[tubid]
+
+        ### BCBG: Announce (able to see) only valid nodes
+        tubid = getSturdyRef((ann_t,)).tubID # To test
+        if tubid not in []:
+            self.log("Not registered node: %s", (tubid))
+            return
+        ###
 
         subscribers[subscriber] = (subscriber_info, time.time())
         def _remove():
