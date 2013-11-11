@@ -2,6 +2,11 @@
 Tahoe-LAFS
 ==========
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! DISCLAIMER: This is BCBG flavor of Tahoe-LAFS,                         !!
+!! please refer to https://github.com/Kloadut/BCBG for more informations. !!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 Tahoe-LAFS is a Free Software/Open Source decentralized data store. It
 distributes your filesystem across multiple servers, and even if some of the
 servers fail or are taken over by an attacker, the entire filesystem continues
